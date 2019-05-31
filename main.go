@@ -7,24 +7,17 @@ import (
 	"net/http"
 	"os"
 	"regexp"
+
+	"github.com/Sigafoos/iv/model"
 )
 
 var (
 	re = regexp.MustCompile(`^\d{1,2}/\d{1,2}/\d{1,2}$`)
 )
-var list map[string]map[string]Spread
-
-type Spread struct {
-	Rank       int     `json:"rank"`
-	IVs        string  `json:"ivs"`
-	Level      float64 `json:"level"`
-	CP         int     `json:"cp"`
-	Product    float64 `json:"statProduct"`
-	Percentage float64 `json:"percent"`
-}
+var list map[string]map[string]model.Spread
 
 func main() {
-	list = make(map[string]map[string]Spread)
+	list = make(map[string]map[string]model.Spread)
 	http.HandleFunc("/iv", serveIV)
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -48,7 +41,7 @@ func serveIV(w http.ResponseWriter, r *http.Request) {
 
 	s, ok := list[pokemon]
 	if !ok {
-		var spread map[string]Spread
+		var spread map[string]model.Spread
 		fp, err := os.Open(fmt.Sprintf("data/%s.json", pokemon))
 		if err != nil {
 			w.WriteHeader(http.StatusNotFound)

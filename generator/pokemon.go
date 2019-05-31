@@ -4,29 +4,9 @@ import (
 	"fmt"
 	"math"
 	"sort"
+
+	"github.com/Sigafoos/iv/model"
 )
-
-type Pokemon struct {
-	Dex   int    `json:"dex"`
-	Name  string `json:"speciesName"`
-	ID    string `json:"speciesId"`
-	Stats Stats  `json:"baseStats"`
-}
-
-type Stats struct {
-	Attack  int `json:"atk"`
-	Defense int `json:"def"`
-	HP      int `json:"hp"`
-}
-
-type Spread struct {
-	Rank       int     `json:"rank"`
-	IVs        string  `json:"ivs"`
-	Level      float64 `json:"level"`
-	CP         int     `json:"cp"`
-	Product    float64 `json:"statProduct"`
-	Percentage float64 `json:"percent"`
-}
 
 var cpm = []float64{
 	0.094,
@@ -110,22 +90,24 @@ var cpm = []float64{
 	0.7903,
 }
 
-func (p *Pokemon) Spreads() map[string]Spread {
-	spreads := make(map[string]Spread)
-	var working []Spread
+type Pokemon struct {
+	Dex   int         `json:"dex"`
+	Name  string      `json:"speciesName"`
+	ID    string      `json:"speciesId"`
+	Stats model.Stats `json:"baseStats"`
+}
+
+func (p *Pokemon) Spreads() map[string]model.Spread {
+	spreads := make(map[string]model.Spread)
+	var working []model.Spread
 
 	for atk := 0; atk < 16; atk++ {
 		for def := 0; def < 16; def++ {
 			for hp := 0; hp < 16; hp++ {
 				for level := len(cpm) - 1; level >= 0; level-- {
-					cp, product := p.CP(level, atk, def, hp)
-					if cp <= 1500 {
-						working = append(working, Spread{
-							IVs:     fmt.Sprintf("%v/%v/%v", atk, def, hp),
-							Level:   float64(level)/2 + 1,
-							CP:      cp,
-							Product: product,
-						})
+					spread := p.CP(level, atk, def, hp)
+					if spread.CP <= 1500 {
+						working = append(working, spread)
 						break
 					}
 				}
@@ -145,15 +127,25 @@ func (p *Pokemon) Spreads() map[string]Spread {
 	return spreads
 }
 
-func (p *Pokemon) CP(level, atk, def, hp int) (int, float64) {
-	attack := float64(p.Stats.Attack+atk) * cpm[level]
-	defense := float64(p.Stats.Defense+def) * cpm[level]
-	stamina := float64(p.Stats.HP+hp) * cpm[level]
+func (p *Pokemon) CP(level, atk, def, hp int) model.Spread {
+	attack := (p.Stats.Attack + float64(atk)) * cpm[level]
+	defense := (p.Stats.Defense + float64(def)) * cpm[level]
+	stamina := (p.Stats.HP + float64(hp)) * cpm[level]
 
 	cp := math.Floor((math.Pow(stamina, 0.5) * attack * math.Pow(defense, 0.5)) / 10)
 	product := attack * defense * stamina
 	if cp < 10 {
-		return 10, product
+		cp = 10
 	}
-	return int(cp), product
+	return model.Spread{
+		IVs:     fmt.Sprintf("%v/%v/%v", atk, def, hp),
+		Level:   float64(level)/2 + 1,
+		CP:      int(cp),
+		Product: product,
+		Stats: model.Stats{
+			Attack:  attack,
+			Defense: defense,
+			HP:      stamina,
+		},
+	}
 }
