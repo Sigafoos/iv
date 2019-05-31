@@ -30,7 +30,7 @@ func main() {
 	if port == "" {
 		port = "8080"
 	}
-	fmt.Println("server running")
+	fmt.Println("server running on port " + port)
 	fmt.Println(http.ListenAndServe(":"+port, nil))
 }
 

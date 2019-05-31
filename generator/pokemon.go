@@ -122,7 +122,7 @@ func (p *Pokemon) Spreads() map[string]Spread {
 					if cp <= 1500 {
 						working = append(working, Spread{
 							IVs:     fmt.Sprintf("%v/%v/%v", atk, def, hp),
-							Level:   float64(level/2) + 1,
+							Level:   float64(level)/2 + 1,
 							CP:      cp,
 							Product: product,
 						})
@@ -137,7 +137,7 @@ func (p *Pokemon) Spreads() map[string]Spread {
 
 	ideal := working[0].Product
 	for k, v := range working {
-		v.Rank = k
+		v.Rank = k + 1
 		v.Percentage = v.Product / ideal * 100
 		spreads[v.IVs] = v
 	}
