@@ -7,12 +7,14 @@ import (
 	"net/http"
 	"os"
 	"regexp"
+	"strings"
 
 	"github.com/Sigafoos/iv/model"
 )
 
 var (
-	re = regexp.MustCompile(`^\d{1,2}/\d{1,2}/\d{1,2}$`)
+	re       = regexp.MustCompile(`^\d{1,2}/\d{1,2}/\d{1,2}$`)
+	stripper = regexp.MustCompile(`[\.()]`)
 )
 var list map[string]map[string]model.Spread
 
@@ -39,10 +41,12 @@ func serveIV(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	s, ok := list[pokemon]
+	name := filename(pokemon)
+
+	s, ok := list[name]
 	if !ok {
 		var spread map[string]model.Spread
-		fp, err := os.Open(fmt.Sprintf("data/%s.json", pokemon))
+		fp, err := os.Open(fmt.Sprintf("data/%s.json", name))
 		if err != nil {
 			w.WriteHeader(http.StatusNotFound)
 			return
@@ -60,7 +64,7 @@ func serveIV(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-		list[pokemon] = spread
+		list[name] = spread
 		s = spread
 	}
 	response, ok := s[ivs]
@@ -75,4 +79,11 @@ func serveIV(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprint(w, string(b))
+}
+
+func filename(pokemon string) string {
+	pokemon = strings.ToLower(pokemon)
+	pokemon = strings.Replace(pokemon, " ", "_", -1)
+	pokemon = stripper.ReplaceAllString(pokemon, "")
+	return pokemon
 }
