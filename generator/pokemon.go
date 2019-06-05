@@ -130,7 +130,7 @@ func (p *Pokemon) Spreads() map[string]model.Spread {
 func (p *Pokemon) CP(level, atk, def, hp int) model.Spread {
 	attack := (p.Stats.Attack + float64(atk)) * cpm[level]
 	defense := (p.Stats.Defense + float64(def)) * cpm[level]
-	stamina := (p.Stats.HP + float64(hp)) * cpm[level]
+	stamina := math.Floor((p.Stats.HP + float64(hp)) * cpm[level])
 
 	cp := math.Floor((math.Pow(stamina, 0.5) * attack * math.Pow(defense, 0.5)) / 10)
 	product := attack * defense * stamina
