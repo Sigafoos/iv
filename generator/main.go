@@ -7,6 +7,8 @@ import (
 	"os"
 )
 
+const dataPath = "../data"
+
 type Gamemaster struct {
 	Pokemon []Pokemon `json:"pokemon"`
 }
@@ -31,7 +33,9 @@ func main() {
 		os.Exit(1)
 	}
 
-	err = os.Mkdir("data", 0755)
+	// don't care about an error as we're removing it if it exists
+	_ = os.RemoveAll(dataPath)
+	err = os.Mkdir(dataPath, 0755)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
