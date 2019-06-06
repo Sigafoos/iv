@@ -46,7 +46,7 @@ func main() {
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		fpw, err := os.OpenFile(fmt.Sprintf("data/%s.json", p.ID), os.O_CREATE|os.O_WRONLY, 0644)
+		fpw, err := os.OpenFile(fmt.Sprintf("%s/%s.json", dataPath, p.ID), os.O_CREATE|os.O_WRONLY, 0644)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
