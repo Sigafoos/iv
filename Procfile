@@ -1,1 +1,1 @@
-web: bin/generate bin/iv
+web: bin/generator bin/iv
