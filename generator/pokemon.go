@@ -117,10 +117,56 @@ func (p *Pokemon) Spreads() map[string]model.Spread {
 
 	sort.Slice(working, func(i, j int) bool { return working[i].Product > working[j].Product })
 
+	good := 1
+	great := 1
+	ultra := 1
+	weather := 1
+	best := 1
+	hatched := 1
+	lucky := 1
+
 	ideal := working[0].Product
 	for k, v := range working {
-		v.Rank = k + 1
 		v.Percentage = v.Product / ideal * 100
+		ranks := model.Ranks{}
+		ranks.All = model.Rank(k + 1)
+
+		// The ranks tell you how likely it is that you can catch/trade for a
+		// Pokemon and get better stats. Even if a spread doesn't qualify for
+		// that category (ie 1/15/15 for any rank but "all" and "good") it still
+		// gets a rank, because there are only n spreads in that category that
+		// are better than it. As such, in all ranks but "all" there will be
+		// multiple spreads with the same rank.
+		ranks.Good = model.Rank(good)
+		if v.Ranks.Good != nil {
+			good++
+		}
+		ranks.Great = model.Rank(great)
+		if v.Ranks.Great != nil {
+			great++
+		}
+		ranks.Ultra = model.Rank(ultra)
+		if v.Ranks.Ultra != nil {
+			ultra++
+		}
+		ranks.Weather = model.Rank(weather)
+		if v.Ranks.Weather != nil {
+			weather++
+		}
+		ranks.Best = model.Rank(best)
+		if v.Ranks.Best != nil {
+			best++
+		}
+		ranks.Hatched = model.Rank(hatched)
+		if v.Ranks.Hatched != nil {
+			hatched++
+		}
+		ranks.Lucky = model.Rank(lucky)
+		if v.Ranks.Lucky != nil {
+			lucky++
+		}
+
+		v.Ranks = ranks
 		spreads[v.IVs] = v
 	}
 
@@ -132,16 +178,12 @@ func (p *Pokemon) CP(level, atk, def, hp int) model.Spread {
 	defense := (p.Stats.Defense + float64(def)) * cpm[level]
 	stamina := (p.Stats.HP + float64(hp)) * cpm[level]
 
-	// HP should not be rounded for the CP calculation, but should for the
-	// stat product
 	cp := math.Floor((math.Pow(stamina, 0.5) * attack * math.Pow(defense, 0.5)) / 10)
+	product := attack * defense * stamina
 	if cp < 10 {
 		cp = 10
 	}
-	stamina = math.Floor(stamina)
-	product := attack * defense * stamina
-
-	return model.Spread{
+	spread := model.Spread{
 		IVs:     fmt.Sprintf("%v/%v/%v", atk, def, hp),
 		Level:   float64(level)/2 + 1,
 		CP:      int(cp),
@@ -152,4 +194,31 @@ func (p *Pokemon) CP(level, atk, def, hp int) model.Spread {
 			HP:      stamina,
 		},
 	}
+	if inFloor(1, atk, def, hp) {
+		spread.Ranks.Good = model.Rank(1)
+	}
+	if inFloor(2, atk, def, hp) {
+		spread.Ranks.Great = model.Rank(1)
+	}
+	if inFloor(3, atk, def, hp) {
+		spread.Ranks.Ultra = model.Rank(1)
+	}
+	if inFloor(4, atk, def, hp) {
+		spread.Ranks.Weather = model.Rank(1)
+	}
+	if inFloor(5, atk, def, hp) {
+		spread.Ranks.Best = model.Rank(1)
+	}
+	if inFloor(10, atk, def, hp) {
+		spread.Ranks.Hatched = model.Rank(1)
+	}
+	if inFloor(12, atk, def, hp) {
+		spread.Ranks.Lucky = model.Rank(1)
+	}
+	return spread
+}
+
+// this is a bit of a hack and I'm kinda ashamed
+func inFloor(floor, atk, def, hp int) bool {
+	return atk >= floor && def >= floor && hp >= floor
 }
