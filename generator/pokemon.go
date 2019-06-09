@@ -178,8 +178,12 @@ func (p *Pokemon) CP(level, atk, def, hp int) model.Spread {
 	defense := (p.Stats.Defense + float64(def)) * cpm[level]
 	stamina := (p.Stats.HP + float64(hp)) * cpm[level]
 
+	// HP should not be rounded for the CP calculation, but should for the
+	// stat product
 	cp := math.Floor((math.Pow(stamina, 0.5) * attack * math.Pow(defense, 0.5)) / 10)
+	stamina = math.Floor(stamina)
 	product := attack * defense * stamina
+
 	if cp < 10 {
 		cp = 10
 	}
