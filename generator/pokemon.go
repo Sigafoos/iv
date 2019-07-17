@@ -97,20 +97,15 @@ type Pokemon struct {
 	Stats model.Stats `json:"baseStats"`
 }
 
-func (p *Pokemon) Spreads() (great, ultra, master map[string]model.Spread) {
-	var workingGreat, workingUltra, workingMaster []model.Spread
+func (p *Pokemon) Spreads() (great, ultra map[string]model.Spread) {
+	var workingGreat, workingUltra []model.Spread
 
 	for atk := 0; atk < 16; atk++ {
 		for def := 0; def < 16; def++ {
 			for hp := 0; hp < 16; hp++ {
 				foundUltra := false
-				foundMaster := false
 				for level := len(cpm) - 1; level >= 0; level-- {
 					spread := p.CP(level, atk, def, hp)
-					if !foundMaster {
-						workingMaster = append(workingMaster, spread)
-						foundMaster = true
-					}
 					if !foundUltra && spread.CP <= 2500 {
 						workingUltra = append(workingUltra, spread)
 						foundUltra = true
@@ -126,7 +121,6 @@ func (p *Pokemon) Spreads() (great, ultra, master map[string]model.Spread) {
 
 	great = p.sortRanks(workingGreat)
 	ultra = p.sortRanks(workingUltra)
-	master = p.sortRanks(workingMaster)
 	return
 }
 

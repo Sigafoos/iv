@@ -47,11 +47,7 @@ func main() {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-	err = os.Mkdir(dataPath+"/master", 0755)
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
+
 	for _, p := range gm.Pokemon {
 		err := savePokemon(p)
 		if err != nil {
@@ -63,16 +59,12 @@ func main() {
 }
 
 func savePokemon(p Pokemon) error {
-	great, ultra, master := p.Spreads()
+	great, ultra := p.Spreads()
 	err := saveSpread(great, fmt.Sprintf("%s/great/%s.json", dataPath, p.ID))
 	if err != nil {
 		return err
 	}
 	err = saveSpread(ultra, fmt.Sprintf("%s/ultra/%s.json", dataPath, p.ID))
-	if err != nil {
-		return err
-	}
-	err = saveSpread(master, fmt.Sprintf("%s/master/%s.json", dataPath, p.ID))
 	return err
 }
 
