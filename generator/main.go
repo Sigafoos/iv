@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+
+	"github.com/Sigafoos/iv/model"
 )
 
 const dataPath = "../data"
@@ -35,28 +37,55 @@ func main() {
 
 	// don't care about an error as we're removing it if it exists
 	_ = os.RemoveAll(dataPath)
-	err = os.Mkdir(dataPath, 0755)
+	err = os.MkdirAll(dataPath+"/great", 0755)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	err = os.Mkdir(dataPath+"/ultra", 0755)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	err = os.Mkdir(dataPath+"/master", 0755)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 	for _, p := range gm.Pokemon {
-		b, err := json.Marshal(p.Spreads())
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-		fpw, err := os.OpenFile(fmt.Sprintf("%s/%s.json", dataPath, p.ID), os.O_CREATE|os.O_WRONLY, 0644)
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-		_, err = fpw.Write(b)
-		fpw.Close()
+		err := savePokemon(p)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
 	}
 	fmt.Println("files created")
+}
+
+func savePokemon(p Pokemon) error {
+	great, ultra, master := p.Spreads()
+	err := saveSpread(great, fmt.Sprintf("%s/great/%s.json", dataPath, p.ID))
+	if err != nil {
+		return err
+	}
+	err = saveSpread(ultra, fmt.Sprintf("%s/ultra/%s.json", dataPath, p.ID))
+	if err != nil {
+		return err
+	}
+	err = saveSpread(master, fmt.Sprintf("%s/master/%s.json", dataPath, p.ID))
+	return err
+}
+
+func saveSpread(spread map[string]model.Spread, path string) error {
+	b, err := json.Marshal(spread)
+	if err != nil {
+		return err
+	}
+	fpw, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		return err
+	}
+	_, err = fpw.Write(b)
+	fpw.Close()
+	return err
 }
