@@ -16,21 +16,10 @@ var (
 	re       = regexp.MustCompile(`^\d{1,2}/\d{1,2}/\d{1,2}$`)
 	stripper = regexp.MustCompile(`[\.()]`)
 )
-
-const (
-	LeagueGreat  = "great"
-	LeagueUltra  = "ultra"
-	LeagueMaster = "master"
-)
-
-var cache map[string]map[string]map[string]model.Spread
+var list map[string]map[string]model.Spread
 
 func main() {
-	cache = make(map[string]map[string]map[string]model.Spread)
-	cache[LeagueGreat] = make(map[string]map[string]model.Spread)
-	cache[LeagueUltra] = make(map[string]map[string]model.Spread)
-	cache[LeagueMaster] = make(map[string]map[string]model.Spread)
-
+	list = make(map[string]map[string]model.Spread)
 	http.HandleFunc("/iv", serveIV)
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -51,23 +40,13 @@ func serveIV(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	league := r.FormValue("league")
-	if league == "" {
-		league = LeagueGreat
-	}
-
-	if league != LeagueGreat && league != LeagueUltra && league != LeagueMaster {
-		// TODO more than this
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
 
 	name := filename(pokemon)
 
-	s, ok := cache[league][name]
+	s, ok := list[name]
 	if !ok {
 		var spread map[string]model.Spread
-		fp, err := os.Open(fmt.Sprintf("data/%s/%s.json", league, name))
+		fp, err := os.Open(fmt.Sprintf("data/%s.json", name))
 		if err != nil {
 			w.WriteHeader(http.StatusNotFound)
 			return
@@ -85,7 +64,7 @@ func serveIV(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-		cache[league][name] = spread
+		list[name] = spread
 		s = spread
 	}
 	response, ok := s[ivs]
