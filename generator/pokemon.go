@@ -115,7 +115,7 @@ func (p *Pokemon) Spreads() map[string]model.Spread {
 		}
 	}
 
-	sort.Slice(working, func(i, j int) bool { return working[i].Product > working[j].Product })
+	sort.SliceStable(working, func(i, j int) bool { return working[i].Product > working[j].Product })
 
 	good := 1
 	great := 1
