@@ -21,8 +21,9 @@ jobs:
             - name: upload service
               uses: actions/upload-artifact@v1
               with:
-                  path: iv
+                  name: iv
             - name: upload generator
               uses: actions/upload-artifact@v1
               with:
-                  path: generator/generator
+                  name: generator
+                  path: generator
