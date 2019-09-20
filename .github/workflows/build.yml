@@ -22,8 +22,9 @@ jobs:
               uses: actions/upload-artifact@v1
               with:
                   name: iv
+                  path: iv
             - name: upload generator
               uses: actions/upload-artifact@v1
               with:
-                  name: generator
+                  name: generator/generator
                   path: generator
