@@ -1,0 +1,27 @@
+name: Build
+description: Create binaries for various platforms
+on:
+    push:
+        tags:
+            - v1.*
+jobs:
+    build:
+        name: go build
+        runs-on: ubuntu-latest
+        steps:
+            - name: checkout
+              uses: actions/checkout@v1
+              with:
+                  fetch-depth: 1
+            - name: use go
+              uses: uses: actions/setup-go@v1
+            - name: compile
+              run: make compile
+            - name: upload service
+              uses: actions/upload-artifact@v1
+              with:
+                  path: iv
+            - name: upload generator
+              uses: actions/upload-artifact@v1
+              with:
+                  path: generator/generator
