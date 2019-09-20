@@ -14,7 +14,7 @@ jobs:
               with:
                   fetch-depth: 1
             - name: use go
-              uses: uses: actions/setup-go@v1
+              uses: actions/setup-go@v1
             - name: compile
               run: make compile
             - name: upload service
