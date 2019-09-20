@@ -1,5 +1,4 @@
 name: Build
-description: Create binaries for various platforms
 on:
     push:
         tags:
