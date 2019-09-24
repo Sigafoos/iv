@@ -6,7 +6,7 @@ COPY go.sum .
 COPY main.go .
 COPY model ./model
 
-RUN CGO_ENABLED=0 GOOS=linux go build -a -ldflags '-extldflags "-static"'
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=arm GOARM=7 go build -a -ldflags '-extldflags "-static"'
 
 FROM scratch
 ENV PORT 4080
