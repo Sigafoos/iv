@@ -16,7 +16,7 @@ jobs:
             - name: build image
               uses: actions/docker/cli@master
               with:
-                  args: build -t dconley23/ivservice:${{github.sha}}
+                  args: build -t dconley23/ivservice:${{github.sha}} .
 
             - name: login to DockerHub
               uses: actions/docker/login@master
