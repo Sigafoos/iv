@@ -16,7 +16,7 @@ jobs:
             - name: build image
               uses: actions/docker/cli@master
               with:
-                  args: build -t ${{github.repository}}:${{github.ref}}
+                  args: build -t ${{github.repository}}:${{github.sha}}
 
             - name: login to DockerHub
               uses: actions/docker/login@master
