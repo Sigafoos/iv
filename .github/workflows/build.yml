@@ -14,17 +14,13 @@ jobs:
                   fetch-depth: 1
 
             - name: build image
-              uses: actions/docker/cli@master
-              with:
-                  args: build -t dconley23/ivservice:${{github.sha}} .
+              run: docker build -t ${{ secrets.DOCKER_USERNAME }}/ivservice:${{github.sha}} .
 
             - name: login to DockerHub
-              uses: actions/docker/login@master
-              env:
-                  DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-                  DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+              uses: azure/docker-login@v1
+              with:
+                  username: ${{ secrets.DOCKER_USERNAME }}
+                  password: ${{ secrets.DOCKER_PASSWORD }}
 
             - name: push to DockerHub
-              uses: actions/docker/cli@master
-              with:
-                  args: push dconley23/ivservice
+              run: docker push ${{ secrets.DOCKER_USERNAME }}/ivservice:${{github.sha}}
