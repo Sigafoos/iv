@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 
 	"github.com/Sigafoos/iv/model"
@@ -16,6 +17,7 @@ type Gamemaster struct {
 }
 
 func main() {
+	log.Print("opening gamemaster...")
 	fp, err := os.Open("gamemaster.json")
 	if err != nil {
 		fmt.Println(err)
@@ -35,6 +37,7 @@ func main() {
 		os.Exit(1)
 	}
 
+	log.Print("removing existing data...")
 	// don't care about an error as we're removing it if it exists
 	_ = os.RemoveAll(dataPath)
 	err = os.MkdirAll(dataPath+"/great", 0755)
@@ -49,13 +52,14 @@ func main() {
 	}
 
 	for _, p := range gm.Pokemon {
+		log.Printf("calculating spread for %s...", p.Name)
 		err := savePokemon(p)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
 	}
-	fmt.Println("files created")
+	log.Println("all files created")
 }
 
 func savePokemon(p Pokemon) error {
